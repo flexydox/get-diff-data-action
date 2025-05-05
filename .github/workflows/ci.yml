@@ -71,7 +71,11 @@ jobs:
 
       - name: Print Output - Patches
         id: output-patches
-        run: echo "${{ steps.test-action.outputs.patches }}"
+        run: echo "$PATCHES"
+        env:
+          PATCHES: ${{ steps.test-action.outputs.patches }}
       - name: Print Output - Raw Files
         id: output-raw-files
-        run: echo "${{ steps.test-action.outputs.raw-files }}"
+        run: echo "$RAW_FILES"
+        env:
+          RAW_FILES: ${{ steps.test-action.outputs.raw-files }}
