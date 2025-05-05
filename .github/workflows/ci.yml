@@ -40,10 +40,6 @@ jobs:
         id: npm-lint
         run: npm run lint
 
-      - name: Test
-        id: npm-ci-test
-        run: npm run ci-test
-
   test-action:
     name: GitHub Actions Test
     runs-on: ubuntu-latest
@@ -56,9 +52,30 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          milliseconds: 2000
+          pr-number: ${{ github.event.pull_request.number }}
+          data-separator: '\n'
+          issue-pattern: '\FXDX-\d+\b'
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+      - name: Print Output - Commit Messages
+        id: output-commit-messages
+        run: echo "${{ steps.test-action.outputs.commit-messages }}"
+      - name: Print Output - Issues
+        id: output-issues
+        run: echo "${{ steps.test-action.outputs.issues }}"
+      - name: Print Output - Files
+        id: output-files
+        run: echo "${{ steps.test-action.outputs.files }}"
+
+      - name: Print Output - Patches
+        id: output-patches
+        run: echo "$PATCHES"
+        env:
+          PATCHES: ${{ steps.test-action.outputs.patches }}
+      - name: Print Output - Raw Files
+        id: output-raw-files
+        run: echo "$RAW_FILES"
+        env:
+          RAW_FILES: ${{ steps.test-action.outputs.raw-files }}

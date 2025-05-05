@@ -1,23 +1,36 @@
-name: The name of your action here
+name: Get git diff Data
 description: Provide a description here
-author: Your name or organization here
+author: Josef Karamon
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: git-commit
+  color: blue
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
+  issue-pattern:
+    description: Issue pattern - regex to match issues in commit messages
+    required: false
+    default: '#(\d+)'
+  pr-number:
+    description: Pull request number
     required: true
-    default: '1000'
+  data-separator:
+    description: Separator for commit messages, patch files and raw files
+    required: false
+    default: '\n'
 
-# Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  commit-messages:
+    description: All commit messages string
+  issues:
+    description: Comma separated list of issues found in commit messages
+  files:
+    description: Comma separated list of file names changed in the pull request
+  patches:
+    description: File patches separated by [data-separator]
+  raw-files:
+    description: Raw files data separated by [data-separator]
 
 runs:
   using: node20
