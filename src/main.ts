@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { getCommits, GetCommitsInput } from './gh-diff.js';
-
+const MAX_RAW_FILES_SIZE_KB = 100;
 /**
  * The main function for the action.
  *
@@ -46,12 +46,15 @@ export async function run(): Promise<void> {
     core.setOutput('commit-messages', result.commitMessages);
     core.setOutput('files', result.filenames);
     core.setOutput('patches', result.patches);
-
-    if (result.rawFiles.length > 0) {
-      core.info('Raw files length: ' + result.rawFiles.length);
+    const sizeInKB = result.rawFiles.length / 1024;
+    core.info('Raw files length (kB): ' + sizeInKB);
+    if (sizeInKB > MAX_RAW_FILES_SIZE_KB) {
+      core.warning(`Raw files length exceeds ${MAX_RAW_FILES_SIZE_KB}kB.`);
+      core.info('Dropping raw files output.');
+      core.setOutput('raw-files', '');
+    } else {
+      core.setOutput('raw-files', result.rawFiles);
     }
-
-    core.setOutput('raw-files', result.rawFiles);
     core.setOutput('issues', result.issues);
   } catch (error) {
     // Fail the workflow run if an error occurs

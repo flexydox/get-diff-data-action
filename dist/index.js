@@ -27333,6 +27333,7 @@ async function getCommits(data) {
     };
 }
 
+const MAX_RAW_FILES_SIZE_KB = 100;
 /**
  * The main function for the action.
  *
@@ -27374,10 +27375,16 @@ async function run() {
         coreExports.setOutput('commit-messages', result.commitMessages);
         coreExports.setOutput('files', result.filenames);
         coreExports.setOutput('patches', result.patches);
-        if (result.rawFiles.length > 0) {
-            coreExports.info('Raw files length: ' + result.rawFiles.length);
+        const sizeInKB = result.rawFiles.length / 1024;
+        coreExports.info('Raw files length (kB): ' + sizeInKB);
+        if (sizeInKB > MAX_RAW_FILES_SIZE_KB) {
+            coreExports.warning(`Raw files length exceeds ${MAX_RAW_FILES_SIZE_KB}kB.`);
+            coreExports.info('Dropping raw files output.');
+            coreExports.setOutput('raw-files', '');
         }
-        coreExports.setOutput('raw-files', result.rawFiles);
+        else {
+            coreExports.setOutput('raw-files', result.rawFiles);
+        }
         coreExports.setOutput('issues', result.issues);
     }
     catch (error) {
