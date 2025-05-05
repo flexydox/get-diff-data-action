@@ -27334,15 +27334,14 @@ async function run() {
     try {
         coreExports.debug(new Date().toTimeString());
         const repo = process.env.GITHUB_REPOSITORY ?? '';
-        const prNumber = process.env.INPUT_PR_NUMBER ?? '';
-        const dataSeparator = process.env.INPUT_DATA_SEPARATOR ?? ',';
-        const issuePattern = process.env.INPUT_ISSUE_PATTERN;
+        const prNumber = process.env['INPUT_PR-NUMBER'] ?? '';
+        const dataSeparator = process.env['INPUT_DATA-SEPARATOR'] ?? ',';
+        const issuePattern = process.env['INPUT_ISSUE-PATTERN'];
         const token = process.env.GITHUB_TOKEN ?? '';
         coreExports.debug(`repo: ${repo}`);
         coreExports.debug(`prNumber: ${prNumber}`);
         coreExports.debug(`dataSeparator: ${dataSeparator}`);
         coreExports.debug(`issuePattern: ${issuePattern}`);
-        coreExports.debug(`envs: ${JSON.stringify(process.env)}`);
         const commitArgs = {
             repo,
             prNumber,

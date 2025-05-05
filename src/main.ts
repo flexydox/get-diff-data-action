@@ -10,16 +10,15 @@ export async function run(): Promise<void> {
   try {
     core.debug(new Date().toTimeString());
     const repo = process.env.GITHUB_REPOSITORY ?? '';
-    const prNumber = process.env.INPUT_PR_NUMBER ?? '';
-    const dataSeparator = process.env.INPUT_DATA_SEPARATOR ?? ',';
-    const issuePattern = process.env.INPUT_ISSUE_PATTERN;
+    const prNumber = process.env['INPUT_PR-NUMBER'] ?? '';
+    const dataSeparator = process.env['INPUT_DATA-SEPARATOR'] ?? ',';
+    const issuePattern = process.env['INPUT_ISSUE-PATTERN'];
     const token = process.env.GITHUB_TOKEN ?? '';
 
     core.debug(`repo: ${repo}`);
     core.debug(`prNumber: ${prNumber}`);
     core.debug(`dataSeparator: ${dataSeparator}`);
     core.debug(`issuePattern: ${issuePattern}`);
-    core.debug(`envs: ${JSON.stringify(process.env)}`);
 
     const commitArgs: GetCommitsInput = {
       repo,
