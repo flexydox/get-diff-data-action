@@ -20,8 +20,15 @@ async function guardApiResponse(
   response: { ok: boolean; statusText: string; text: () => Promise<string> }
 ) {
   if (!response.ok) {
+    const repo = process.env.GITHUB_REPOSITORY;
+    const token = process.env.GITHUB_TOKEN;
     const responseText = await response.text();
-    throw new Error(`${errMsg}: \n${responseText}`);
+    throw new Error(`
+      ${errMsg}: 
+      ${responseText}
+      Env:
+      GITHUB_REPOSITORY: ${repo}
+      GITHUB_TOKEN: ${token}`);
   }
 }
 

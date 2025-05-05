@@ -27249,8 +27249,15 @@ var coreExports = requireCore();
 const SCALAR_SEPARATOR = ',';
 async function guardApiResponse(errMsg, response) {
     if (!response.ok) {
+        const repo = process.env.GITHUB_REPOSITORY;
+        const token = process.env.GITHUB_TOKEN;
         const responseText = await response.text();
-        throw new Error(`${errMsg}: \n${responseText}`);
+        throw new Error(`
+      ${errMsg}: 
+      ${responseText}
+      Env:
+      GITHUB_REPOSITORY: ${repo}
+      GITHUB_TOKEN: ${token}`);
     }
 }
 async function getCommits() {
