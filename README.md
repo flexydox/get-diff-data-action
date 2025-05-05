@@ -1,10 +1,8 @@
 # get-diff-data-action
 
-[![GitHub Super-Linter](https://github.com/actions/typescript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![CI](https://github.com/actions/typescript-action/actions/workflows/ci.yml/badge.svg)
 [![Check dist/](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/check-dist.yml)
 [![CodeQL](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/actions/typescript-action/actions/workflows/codeql-analysis.yml)
-[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
 Use this template to bootstrap the creation of a TypeScript action. :rocket:
 
@@ -83,12 +81,7 @@ steps:
   - name: Test Local Action
     id: test-action
     uses: ./
-    with:
-      milliseconds: 1000
-
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+    with: ...
 ```
 
 For example workflow runs, check out the [Actions tab](https://github.com/actions/typescript-action/actions)! :rocket:
@@ -111,12 +104,7 @@ steps:
   - name: Test Local Action
     id: test-action
     uses: actions/typescript-action@v1 # Commit with the `v1` tag
-    with:
-      milliseconds: 1000
-
-  - name: Print Output
-    id: output
-    run: echo "${{ steps.test-action.outputs.time }}"
+    with: ...
 ```
 
 ## Publishing a New Release
@@ -138,44 +126,3 @@ simplifies this process by performing the following steps:
 1. **Pushing changes to remote:** Finally, the script pushes the necessary commits, tags and branches to the remote
    repository. From here, you will need to create a new release in GitHub so users can easily reference the new tags in
    their workflows.
-
-## Dependency License Management
-
-This template includes a GitHub Actions workflow, [`licensed.yml`](./.github/workflows/licensed.yml), that uses
-[Licensed](https://github.com/licensee/licensed) to check for dependencies with missing or non-compliant licenses. This
-workflow is initially disabled. To enable the workflow, follow the below steps.
-
-1. Open [`licensed.yml`](./.github/workflows/licensed.yml)
-1. Uncomment the following lines:
-
-   ```yaml
-   # pull_request:
-   #   branches:
-   #     - main
-   # push:
-   #   branches:
-   #     - main
-   ```
-
-1. Save and commit the changes
-
-Once complete, this workflow will run any time a pull request is created or changes pushed directly to `main`. If the
-workflow detects any dependencies with missing or non-compliant licenses, it will fail the workflow and provide details
-on the issue(s) found.
-
-### Updating Licenses
-
-Whenever you install or update dependencies, you can use the Licensed CLI to update the licenses database. To install
-Licensed, see the project's [Readme](https://github.com/licensee/licensed?tab=readme-ov-file#installation).
-
-To update the cached licenses, run the following command:
-
-```bash
-licensed cache
-```
-
-To check the status of cached licenses, run the following command:
-
-```bash
-licensed status
-```
