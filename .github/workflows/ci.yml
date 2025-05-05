@@ -53,11 +53,23 @@ jobs:
         id: test-action
         uses: ./
         with:
-          milliseconds: 2000
           input_pr_number: ${{ github.event.pull_request.number }}
           input_data_separator: '\n'
-          input_issue_pattern: '\bDEV-\d+\b'
+          input_issue_pattern: '\FXDX-\d+\b'
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+      - name: Print Output - Commit Messages
+        id: output-commit-messages
+        run: echo "${{ steps.test-action.outputs.commit-messages }}"
+      - name: Print Output - Issues
+        id: output-issues
+        run: echo "${{ steps.test-action.outputs.issues }}"
+      - name: Print Output - Files
+        id: output-files
+        run: echo "${{ steps.test-action.outputs.files }}"
+
+      - name: Print Output - Patch Files Data
+        id: output-patch-files-data
+        run: echo "${{ steps.test-action.outputs.patch-files-data }}"
+      - name: Print Output - Raw Files Data
+        id: output-raw-files-data
+        run: echo "${{ steps.test-action.outputs.raw-files-data }}"
