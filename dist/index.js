@@ -27342,6 +27342,7 @@ async function run() {
         coreExports.debug(`prNumber: ${prNumber}`);
         coreExports.debug(`dataSeparator: ${dataSeparator}`);
         coreExports.debug(`issuePattern: ${issuePattern}`);
+        coreExports.debug(`envs: ${JSON.stringify(process.env)}`);
         const commitArgs = {
             repo,
             prNumber,

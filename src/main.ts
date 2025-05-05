@@ -19,6 +19,7 @@ export async function run(): Promise<void> {
     core.debug(`prNumber: ${prNumber}`);
     core.debug(`dataSeparator: ${dataSeparator}`);
     core.debug(`issuePattern: ${issuePattern}`);
+    core.debug(`envs: ${JSON.stringify(process.env)}`);
 
     const commitArgs: GetCommitsInput = {
       repo,
