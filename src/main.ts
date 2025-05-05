@@ -46,6 +46,11 @@ export async function run(): Promise<void> {
     core.setOutput('commit-messages', result.commitMessages);
     core.setOutput('files', result.filenames);
     core.setOutput('patches', result.patches);
+
+    if (result.rawFiles.length > 0) {
+      core.info('Raw files length: ' + result.rawFiles.length);
+    }
+
     core.setOutput('raw-files', result.rawFiles);
     core.setOutput('issues', result.issues);
   } catch (error) {

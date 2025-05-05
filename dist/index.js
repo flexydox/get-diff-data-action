@@ -27374,6 +27374,9 @@ async function run() {
         coreExports.setOutput('commit-messages', result.commitMessages);
         coreExports.setOutput('files', result.filenames);
         coreExports.setOutput('patches', result.patches);
+        if (result.rawFiles.length > 0) {
+            coreExports.info('Raw files length: ' + result.rawFiles.length);
+        }
         coreExports.setOutput('raw-files', result.rawFiles);
         coreExports.setOutput('issues', result.issues);
     }
