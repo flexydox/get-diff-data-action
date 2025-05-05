@@ -27270,9 +27270,8 @@ async function getCommits() {
         headers
     });
     const commits = (await commitsResp.json());
-    const commitMessages = commits
-        .map((c) => `- ${c.commit.message}`)
-        .join(dataSeparator);
+    const lastCommitSha = commits.length > 0 ? commits[commits.length - 1].sha : null;
+    const commitMessages = commits.map((c) => `- ${c.commit.message}`).join(dataSeparator);
     const filenamesList = [];
     const patchesList = [];
     const rawFilesList = [];
@@ -27288,12 +27287,20 @@ async function getCommits() {
     for (const file of files) {
         filenamesList.push(file.filename);
         patchesList.push(file.patch);
-        // const rawFileResp = await fetch(file.raw_url, {
-        //   method: 'GET',
-        //   headers
-        // });
-        //const rawFile = await rawFileResp.text();
-        rawFilesList.push(file.raw_url);
+        if (!lastCommitSha) {
+            continue;
+        }
+        const fileContentUrl = `https://api.github.com/repos/${repo}/contents/${file.filename}?ref=${lastCommitSha}`;
+        console.log('fileContentUrl', fileContentUrl);
+        const fileContentResp = await fetch(fileContentUrl, {
+            method: 'GET',
+            headers: {
+                ...headers,
+                Accept: 'application/vnd.github.v3.raw'
+            }
+        });
+        const rawFile = await fileContentResp.text();
+        rawFilesList.push(rawFile);
     }
     const uniqueIssues = Array.from(new Set(issuesList));
     return {
@@ -27315,10 +27322,10 @@ async function run() {
         coreExports.debug(new Date().toTimeString());
         const result = await getCommits();
         coreExports.debug(result.issues);
-        // core.setOutput('commit-messages', result.commitMessages);
-        // core.setOutput('files', result.filenames);
-        // core.setOutput('patches', result.patches);
-        // core.setOutput('raw-files', result.rawFiles);
+        //core.setOutput('commit-messages', result.commitMessages);
+        coreExports.setOutput('files', result.filenames);
+        //core.setOutput('patches', result.patches);
+        //core.setOutput('raw-files', result.rawFiles);
         // core.setOutput('issues', result.issues);
     }
     catch (error) {
