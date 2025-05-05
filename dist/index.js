@@ -27250,7 +27250,7 @@ const SCALAR_SEPARATOR = ',';
 async function guardApiResponse(errMsg, response) {
     if (!response.ok) {
         const responseText = await response.text();
-        throw new Error(`${errMsg}: ${response.statusText}\n${responseText}`);
+        throw new Error(`${errMsg}: \n${responseText}`);
     }
 }
 async function getCommits() {

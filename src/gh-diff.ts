@@ -21,7 +21,7 @@ async function guardApiResponse(
 ) {
   if (!response.ok) {
     const responseText = await response.text();
-    throw new Error(`${errMsg}: ${response.statusText}\n${responseText}`);
+    throw new Error(`${errMsg}: \n${responseText}`);
   }
 }
 
