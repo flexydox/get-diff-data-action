@@ -27375,7 +27375,7 @@ async function run() {
         coreExports.setOutput('commit-messages', result.commitMessages);
         coreExports.setOutput('files', result.filenames);
         coreExports.setOutput('patches', result.patches);
-        const sizeInKB = result.rawFiles.length / 1024;
+        const sizeInKB = Math.ceil(result.rawFiles.length / 1024);
         coreExports.info('Raw files length (kB): ' + sizeInKB);
         if (sizeInKB > MAX_RAW_FILES_SIZE_KB) {
             coreExports.warning(`Raw files length exceeds ${MAX_RAW_FILES_SIZE_KB}kB.`);
