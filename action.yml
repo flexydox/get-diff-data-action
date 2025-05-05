@@ -27,9 +27,9 @@ outputs:
     description: Comma separated list of issues found in commit messages
   files:
     description: Comma separated list of file names changed in the pull request
-  patch-files-data:
+  patches:
     description: File patches separated by [data-separator]
-  raw-files-data:
+  raw-files:
     description: Raw files data separated by [data-separator]
 
 runs:

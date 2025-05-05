@@ -69,9 +69,9 @@ jobs:
         id: output-files
         run: echo "${{ steps.test-action.outputs.files }}"
 
-      - name: Print Output - Patch Files Data
-        id: output-patch-files-data
-        run: echo "${{ steps.test-action.outputs.patch-files-data }}"
-      - name: Print Output - Raw Files Data
-        id: output-raw-files-data
-        run: echo "${{ steps.test-action.outputs.raw-files-data }}"
+      - name: Print Output - Patches
+        id: output-patches
+        run: echo "${{ steps.test-action.outputs.patches }}"
+      - name: Print Output - Raw Files
+        id: output-raw-files
+        run: echo "${{ steps.test-action.outputs.raw-files }}"

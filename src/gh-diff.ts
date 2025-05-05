@@ -108,6 +108,9 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
       }
     });
     try {
+      if (fileContentResp.status === 404) {
+        continue;
+      }
       await guardApiResponse('Failed to fetch file content', fileContentUrl, fileContentResp);
       const rawFile = await fileContentResp.text();
       rawFilesList.push(rawFile);
