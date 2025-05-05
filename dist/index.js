@@ -27278,8 +27278,8 @@ async function getCommits(data) {
         method: 'GET',
         headers
     });
-    guardApiResponse('Failed to fetch commits', commitsUrl, commitsResp);
-    guardApiResponse('Failed to fetch files', filesUrl, filesResp);
+    await guardApiResponse('Failed to fetch commits', commitsUrl, commitsResp);
+    await guardApiResponse('Failed to fetch files', filesUrl, filesResp);
     const files = (await filesResp.json());
     const commits = (await commitsResp.json());
     const lastCommitSha = commits.length > 0 ? commits[commits.length - 1].sha : null;
@@ -27311,9 +27311,14 @@ async function getCommits(data) {
                 Accept: 'application/vnd.github.v3.raw'
             }
         });
-        guardApiResponse('Failed to fetch file content', fileContentUrl, fileContentResp);
-        const rawFile = await fileContentResp.text();
-        rawFilesList.push(rawFile);
+        try {
+            await guardApiResponse('Failed to fetch file content', fileContentUrl, fileContentResp);
+            const rawFile = await fileContentResp.text();
+            rawFilesList.push(rawFile);
+        }
+        catch (error) {
+            console.warn('Failed to fetch file content', error);
+        }
     }
     const uniqueIssues = Array.from(new Set(issuesList));
     return {
@@ -27342,6 +27347,18 @@ async function run() {
         coreExports.debug(`prNumber: ${prNumber}`);
         coreExports.debug(`dataSeparator: ${dataSeparator}`);
         coreExports.debug(`issuePattern: ${issuePattern}`);
+        if (prNumber === '') {
+            coreExports.info('PR number is not provided. Exiting.');
+            return;
+        }
+        if (repo === '') {
+            coreExports.info('Repository is not provided. Exiting.');
+            return;
+        }
+        if (token === '') {
+            coreExports.info('GitHub token is not provided. Exiting.');
+            return;
+        }
         const commitArgs = {
             repo,
             prNumber,
@@ -27351,11 +27368,11 @@ async function run() {
         };
         const result = await getCommits(commitArgs);
         coreExports.debug(result.issues);
-        //core.setOutput('commit-messages', result.commitMessages);
+        coreExports.setOutput('commit-messages', result.commitMessages);
         coreExports.setOutput('files', result.filenames);
-        //core.setOutput('patches', result.patches);
-        //core.setOutput('raw-files', result.rawFiles);
-        // core.setOutput('issues', result.issues);
+        coreExports.setOutput('patches', result.patches);
+        coreExports.setOutput('raw-files', result.rawFiles);
+        coreExports.setOutput('issues', result.issues);
     }
     catch (error) {
         // Fail the workflow run if an error occurs

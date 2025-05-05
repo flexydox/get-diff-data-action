@@ -69,8 +69,8 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
     headers
   });
 
-  guardApiResponse('Failed to fetch commits', commitsUrl, commitsResp);
-  guardApiResponse('Failed to fetch files', filesUrl, filesResp);
+  await guardApiResponse('Failed to fetch commits', commitsUrl, commitsResp);
+  await guardApiResponse('Failed to fetch files', filesUrl, filesResp);
 
   const files = (await filesResp.json()) as FileData[];
   const commits = (await commitsResp.json()) as CommitData[];
@@ -107,9 +107,13 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
         Accept: 'application/vnd.github.v3.raw'
       }
     });
-    guardApiResponse('Failed to fetch file content', fileContentUrl, fileContentResp);
-    const rawFile = await fileContentResp.text();
-    rawFilesList.push(rawFile);
+    try {
+      await guardApiResponse('Failed to fetch file content', fileContentUrl, fileContentResp);
+      const rawFile = await fileContentResp.text();
+      rawFilesList.push(rawFile);
+    } catch (error) {
+      console.warn('Failed to fetch file content', error);
+    }
   }
 
   const uniqueIssues = Array.from(new Set(issuesList));

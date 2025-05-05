@@ -20,6 +20,19 @@ export async function run(): Promise<void> {
     core.debug(`dataSeparator: ${dataSeparator}`);
     core.debug(`issuePattern: ${issuePattern}`);
 
+    if (prNumber === '') {
+      core.info('PR number is not provided. Exiting.');
+      return;
+    }
+    if (repo === '') {
+      core.info('Repository is not provided. Exiting.');
+      return;
+    }
+    if (token === '') {
+      core.info('GitHub token is not provided. Exiting.');
+      return;
+    }
+
     const commitArgs: GetCommitsInput = {
       repo,
       prNumber,
@@ -30,11 +43,11 @@ export async function run(): Promise<void> {
     const result = await getCommits(commitArgs);
     core.debug(result.issues);
 
-    //core.setOutput('commit-messages', result.commitMessages);
+    core.setOutput('commit-messages', result.commitMessages);
     core.setOutput('files', result.filenames);
-    //core.setOutput('patches', result.patches);
-    //core.setOutput('raw-files', result.rawFiles);
-    // core.setOutput('issues', result.issues);
+    core.setOutput('patches', result.patches);
+    core.setOutput('raw-files', result.rawFiles);
+    core.setOutput('issues', result.issues);
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message);
