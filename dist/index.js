@@ -27269,6 +27269,12 @@ async function getCommits() {
         method: 'GET',
         headers
     });
+    if (!commitsResp.ok) {
+        throw new Error(`Failed to fetch commits: ${commitsResp.statusText}`);
+    }
+    if (!filesResp.ok) {
+        throw new Error(`Failed to fetch files: ${filesResp.statusText}`);
+    }
     const commits = (await commitsResp.json());
     const lastCommitSha = commits.length > 0 ? commits[commits.length - 1].sha : null;
     const commitMessages = commits.map((c) => `- ${c.commit.message}`).join(dataSeparator);
@@ -27299,6 +27305,9 @@ async function getCommits() {
                 Accept: 'application/vnd.github.v3.raw'
             }
         });
+        if (!fileContentResp.ok) {
+            throw new Error(`Failed to fetch file content: ${fileContentResp.statusText}`);
+        }
         const rawFile = await fileContentResp.text();
         rawFilesList.push(rawFile);
     }
