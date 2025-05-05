@@ -53,9 +53,9 @@ jobs:
         id: test-action
         uses: ./
         with:
-          input_pr_number: ${{ github.event.pull_request.number }}
-          input_data_separator: '\n'
-          input_issue_pattern: '\FXDX-\d+\b'
+          pr-number: ${{ github.event.pull_request.number }}
+          data-separator: '\n'
+          issue-pattern: '\FXDX-\d+\b'
 
       - name: Print Output - Commit Messages
         id: output-commit-messages
