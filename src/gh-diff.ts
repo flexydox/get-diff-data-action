@@ -15,6 +15,16 @@ export interface FileData {
 
 const SCALAR_SEPARATOR = ',';
 
+async function guardApiResponse(
+  errMsg: string,
+  response: { ok: boolean; statusText: string; text: () => Promise<string> }
+) {
+  if (!response.ok) {
+    const responseText = await response.text();
+    throw new Error(`${errMsg}: ${response.statusText}\n${responseText}`);
+  }
+}
+
 export async function getCommits() {
   const repo = process.env.GITHUB_REPOSITORY;
   const prNumber = process.env.INPUT_PR_NUMBER;
@@ -33,19 +43,15 @@ export async function getCommits() {
     method: 'GET',
     headers
   });
-  const files = (await filesResp.json()) as FileData[];
   const commitsResp = await fetch(commitsUrl, {
     method: 'GET',
     headers
   });
 
-  if (!commitsResp.ok) {
-    throw new Error(`Failed to fetch commits: ${commitsResp.statusText}`);
-  }
-  if (!filesResp.ok) {
-    throw new Error(`Failed to fetch files: ${filesResp.statusText}`);
-  }
+  guardApiResponse('Failed to fetch commits', commitsResp);
+  guardApiResponse('Failed to fetch files', filesResp);
 
+  const files = (await filesResp.json()) as FileData[];
   const commits = (await commitsResp.json()) as CommitData[];
 
   const lastCommitSha = commits.length > 0 ? commits[commits.length - 1].sha : null;
@@ -80,9 +86,7 @@ export async function getCommits() {
         Accept: 'application/vnd.github.v3.raw'
       }
     });
-    if (!fileContentResp.ok) {
-      throw new Error(`Failed to fetch file content: ${fileContentResp.statusText}`);
-    }
+    guardApiResponse('Failed to fetch file content', fileContentResp);
     const rawFile = await fileContentResp.text();
     rawFilesList.push(rawFile);
   }
