@@ -27303,7 +27303,6 @@ async function getCommits(data) {
             continue;
         }
         const fileContentUrl = `https://api.github.com/repos/${repo}/contents/${file.filename}?ref=${lastCommitSha}`;
-        console.log('fileContentUrl', fileContentUrl);
         const fileContentResp = await fetch(fileContentUrl, {
             method: 'GET',
             headers: {
