@@ -17,6 +17,7 @@ const SCALAR_SEPARATOR = ',';
 
 async function guardApiResponse(
   errMsg: string,
+  url: string,
   response: { ok: boolean; statusText: string; text: () => Promise<string> }
 ) {
   if (!response.ok) {
@@ -24,6 +25,7 @@ async function guardApiResponse(
     const token = process.env.GITHUB_TOKEN;
     const responseText = await response.text();
     throw new Error(`
+      url: ${url}
       ${errMsg}: 
       ${responseText}
       Env:
@@ -32,12 +34,24 @@ async function guardApiResponse(
   }
 }
 
-export async function getCommits() {
-  const repo = process.env.GITHUB_REPOSITORY;
-  const prNumber = process.env.INPUT_PR_NUMBER;
-  const dataSeparator = process.env.INPUT_DATA_SEPARATOR;
-  const issuePattern = process.env.INPUT_ISSUE_PATTERN;
-  const token = process.env.GITHUB_TOKEN;
+export interface GetCommitsInput {
+  repo: string;
+  prNumber: string;
+  dataSeparator: string;
+  issuePattern?: string;
+  token: string;
+}
+
+export interface GetCommitsOutput {
+  filenames: string;
+  commitMessages: string;
+  patches: string;
+  rawFiles: string;
+  issues: string;
+}
+
+export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutput> {
+  const { repo, prNumber, dataSeparator, issuePattern, token } = data;
   const headers = {
     Authorization: `Bearer ${token}`,
     'User-Agent': 'nodejs-action-script',
@@ -55,8 +69,8 @@ export async function getCommits() {
     headers
   });
 
-  guardApiResponse('Failed to fetch commits', commitsResp);
-  guardApiResponse('Failed to fetch files', filesResp);
+  guardApiResponse('Failed to fetch commits', commitsUrl, commitsResp);
+  guardApiResponse('Failed to fetch files', filesUrl, filesResp);
 
   const files = (await filesResp.json()) as FileData[];
   const commits = (await commitsResp.json()) as CommitData[];
@@ -93,7 +107,7 @@ export async function getCommits() {
         Accept: 'application/vnd.github.v3.raw'
       }
     });
-    guardApiResponse('Failed to fetch file content', fileContentResp);
+    guardApiResponse('Failed to fetch file content', fileContentUrl, fileContentResp);
     const rawFile = await fileContentResp.text();
     rawFilesList.push(rawFile);
   }

@@ -27247,12 +27247,13 @@ function requireCore () {
 var coreExports = requireCore();
 
 const SCALAR_SEPARATOR = ',';
-async function guardApiResponse(errMsg, response) {
+async function guardApiResponse(errMsg, url, response) {
     if (!response.ok) {
         const repo = process.env.GITHUB_REPOSITORY;
         const token = process.env.GITHUB_TOKEN;
         const responseText = await response.text();
         throw new Error(`
+      url: ${url}
       ${errMsg}: 
       ${responseText}
       Env:
@@ -27260,12 +27261,8 @@ async function guardApiResponse(errMsg, response) {
       GITHUB_TOKEN: ${token}`);
     }
 }
-async function getCommits() {
-    const repo = process.env.GITHUB_REPOSITORY;
-    const prNumber = process.env.INPUT_PR_NUMBER;
-    const dataSeparator = process.env.INPUT_DATA_SEPARATOR;
-    const issuePattern = process.env.INPUT_ISSUE_PATTERN;
-    const token = process.env.GITHUB_TOKEN;
+async function getCommits(data) {
+    const { repo, prNumber, dataSeparator, issuePattern, token } = data;
     const headers = {
         Authorization: `Bearer ${token}`,
         'User-Agent': 'nodejs-action-script',
@@ -27281,8 +27278,8 @@ async function getCommits() {
         method: 'GET',
         headers
     });
-    guardApiResponse('Failed to fetch commits', commitsResp);
-    guardApiResponse('Failed to fetch files', filesResp);
+    guardApiResponse('Failed to fetch commits', commitsUrl, commitsResp);
+    guardApiResponse('Failed to fetch files', filesUrl, filesResp);
     const files = (await filesResp.json());
     const commits = (await commitsResp.json());
     const lastCommitSha = commits.length > 0 ? commits[commits.length - 1].sha : null;
@@ -27314,7 +27311,7 @@ async function getCommits() {
                 Accept: 'application/vnd.github.v3.raw'
             }
         });
-        guardApiResponse('Failed to fetch file content', fileContentResp);
+        guardApiResponse('Failed to fetch file content', fileContentUrl, fileContentResp);
         const rawFile = await fileContentResp.text();
         rawFilesList.push(rawFile);
     }
@@ -27336,7 +27333,23 @@ async function getCommits() {
 async function run() {
     try {
         coreExports.debug(new Date().toTimeString());
-        const result = await getCommits();
+        const repo = process.env.GITHUB_REPOSITORY ?? '';
+        const prNumber = process.env.INPUT_PR_NUMBER ?? '';
+        const dataSeparator = process.env.INPUT_DATA_SEPARATOR ?? ',';
+        const issuePattern = process.env.INPUT_ISSUE_PATTERN;
+        const token = process.env.GITHUB_TOKEN ?? '';
+        coreExports.debug(`repo: ${repo}`);
+        coreExports.debug(`prNumber: ${prNumber}`);
+        coreExports.debug(`dataSeparator: ${dataSeparator}`);
+        coreExports.debug(`issuePattern: ${issuePattern}`);
+        const commitArgs = {
+            repo,
+            prNumber,
+            dataSeparator,
+            issuePattern,
+            token
+        };
+        const result = await getCommits(commitArgs);
         coreExports.debug(result.issues);
         //core.setOutput('commit-messages', result.commitMessages);
         coreExports.setOutput('files', result.filenames);
