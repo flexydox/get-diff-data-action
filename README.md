@@ -1,4 +1,8 @@
 # get-diff-data-action
+Get diff data from PR. This action will return commit messages, associated issues parsed frm commit messages,
+diff patches and raw final files changed or created by PR.
+
+
 
 
 Use this template to bootstrap the creation of a TypeScript action. :rocket:
