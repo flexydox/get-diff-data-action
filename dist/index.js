@@ -27246,18 +27246,63 @@ function requireCore () {
 
 var coreExports = requireCore();
 
-/**
- * Waits for a number of milliseconds.
- *
- * @param milliseconds The number of milliseconds to wait.
- * @returns Resolves with 'done!' after the wait is over.
- */
-async function wait(milliseconds) {
-    return new Promise((resolve) => {
-        if (isNaN(milliseconds))
-            throw new Error('milliseconds is not a number');
-        setTimeout(() => resolve('done!'), milliseconds);
+const SCALAR_SEPARATOR = ',';
+async function getCommits() {
+    const repo = process.env.GITHUB_REPOSITORY;
+    const prNumber = process.env.INPUT_PR_NUMBER;
+    const dataSeparator = process.env.INPUT_DATA_SEPARATOR;
+    const issuePattern = process.env.INPUT_ISSUE_PATTERN;
+    const token = process.env.GITHUB_TOKEN;
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        'User-Agent': 'nodejs-action-script',
+        'X-GitHub-Api-Version': '2022-11-28'
+    };
+    const commitsUrl = `https://api.github.com/repos/${repo}/pulls/${prNumber}/commits`;
+    const filesUrl = `https://api.github.com/repos/${repo}/pulls/${prNumber}/files`;
+    const filesResp = await fetch(filesUrl, {
+        method: 'GET',
+        headers
     });
+    const files = (await filesResp.json());
+    const commitsResp = await fetch(commitsUrl, {
+        method: 'GET',
+        headers
+    });
+    const commits = (await commitsResp.json());
+    const commitMessages = commits
+        .map((c) => `- ${c.commit.message}`)
+        .join(dataSeparator);
+    const filenamesList = [];
+    const patchesList = [];
+    const rawFilesList = [];
+    const issuesList = [];
+    if (issuePattern) {
+        const issueMatches = commitMessages.match(new RegExp(issuePattern, 'g'));
+        if (issueMatches) {
+            for (const match of issueMatches) {
+                issuesList.push(match);
+            }
+        }
+    }
+    for (const file of files) {
+        filenamesList.push(file.filename);
+        patchesList.push(file.patch);
+        // const rawFileResp = await fetch(file.raw_url, {
+        //   method: 'GET',
+        //   headers
+        // });
+        //const rawFile = await rawFileResp.text();
+        rawFilesList.push(file.raw_url);
+    }
+    const uniqueIssues = Array.from(new Set(issuesList));
+    return {
+        filenames: filenamesList.join(SCALAR_SEPARATOR),
+        commitMessages: commitMessages,
+        patches: patchesList.join(dataSeparator),
+        rawFiles: rawFilesList.join(dataSeparator),
+        issues: uniqueIssues.join(SCALAR_SEPARATOR)
+    };
 }
 
 /**
@@ -27267,15 +27312,14 @@ async function wait(milliseconds) {
  */
 async function run() {
     try {
-        const ms = coreExports.getInput('milliseconds');
-        // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        coreExports.debug(`Waiting ${ms} milliseconds ...`);
-        // Log the current timestamp, wait, then log the new timestamp
         coreExports.debug(new Date().toTimeString());
-        await wait(parseInt(ms, 10));
-        coreExports.debug(new Date().toTimeString());
-        // Set outputs for other workflow steps to use
-        coreExports.setOutput('time', new Date().toTimeString());
+        const result = await getCommits();
+        coreExports.debug(result.issues);
+        // core.setOutput('commit-messages', result.commitMessages);
+        // core.setOutput('files', result.filenames);
+        // core.setOutput('patches', result.patches);
+        // core.setOutput('raw-files', result.rawFiles);
+        // core.setOutput('issues', result.issues);
     }
     catch (error) {
         // Fail the workflow run if an error occurs

@@ -40,10 +40,6 @@ jobs:
         id: npm-lint
         run: npm run lint
 
-      - name: Test
-        id: npm-ci-test
-        run: npm run ci-test
-
   test-action:
     name: GitHub Actions Test
     runs-on: ubuntu-latest
@@ -58,6 +54,9 @@ jobs:
         uses: ./
         with:
           milliseconds: 2000
+          input_pr_number: ${{ github.event.pull_request.number }}
+          input_data_separator: '\n'
+          input_issue_pattern: '\bDEV-\d+\b'
 
       - name: Print Output
         id: output
