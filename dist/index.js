@@ -27262,6 +27262,11 @@ async function guardApiResponse(errMsg, url, response) {
     }
 }
 function inferIssues(text, issuePattern) {
+    if (!text) {
+        return [];
+    }
+    console.log('text', text);
+    console.log('issuePattern', issuePattern);
     const issuesList = [];
     const issueMatches = text.match(new RegExp(issuePattern, 'g'));
     if (issueMatches) {
