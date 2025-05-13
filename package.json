@@ -1,7 +1,7 @@
 {
   "name": "@flexydox/get-diff-data-action",
   "description": "Get data from PR",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "",
   "type": "module",
   "private": true,

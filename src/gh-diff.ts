@@ -51,6 +51,11 @@ export interface GetCommitsOutput {
 }
 
 function inferIssues(text: string, issuePattern: string): string[] {
+  if (!text) {
+    return [];
+  }
+  console.log('text', text);
+  console.log('issuePattern', issuePattern);
   const issuesList: string[] = [];
   const issueMatches = text.match(new RegExp(issuePattern, 'g'));
   if (issueMatches) {
@@ -106,6 +111,7 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
   const patchesList: string[] = [];
   const rawFilesList: string[] = [];
   const issuesList: string[] = [];
+
   if (issuePattern) {
     issuesList.push(...inferIssues(prData.title, issuePattern));
     issuesList.push(...inferIssues(prData.body, issuePattern));
@@ -139,6 +145,7 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
   }
 
   const uniqueIssues = Array.from(new Set(issuesList));
+
   return {
     filenames: filenamesList.join(SCALAR_SEPARATOR),
     commitMessages: commitMessages,
