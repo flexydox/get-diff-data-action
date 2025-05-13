@@ -50,6 +50,17 @@ export interface GetCommitsOutput {
   issues: string;
 }
 
+function inferIssues(text: string, issuePattern: string): string[] {
+  const issuesList: string[] = [];
+  const issueMatches = text.match(new RegExp(issuePattern, 'g'));
+  if (issueMatches) {
+    for (const match of issueMatches) {
+      issuesList.push(match);
+    }
+  }
+  return issuesList;
+}
+
 export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutput> {
   const { repo, prNumber, dataSeparator, issuePattern, token } = data;
   const headers = {
@@ -59,6 +70,12 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
   };
   const commitsUrl = `https://api.github.com/repos/${repo}/pulls/${prNumber}/commits`;
   const filesUrl = `https://api.github.com/repos/${repo}/pulls/${prNumber}/files`;
+  const prUrl = `https://api.github.com/repos/${repo}/pulls/${prNumber}`;
+
+  const prResp = await fetch(prUrl, {
+    method: 'GET',
+    headers
+  });
 
   const filesResp = await fetch(filesUrl, {
     method: 'GET',
@@ -69,8 +86,14 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
     headers
   });
 
+  await guardApiResponse('Failed to fetch PR', prUrl, prResp);
   await guardApiResponse('Failed to fetch commits', commitsUrl, commitsResp);
   await guardApiResponse('Failed to fetch files', filesUrl, filesResp);
+
+  const prData = (await prResp.json()) as {
+    title: string;
+    body: string;
+  };
 
   const files = (await filesResp.json()) as FileData[];
   const commits = (await commitsResp.json()) as CommitData[];
@@ -84,12 +107,9 @@ export async function getCommits(data: GetCommitsInput): Promise<GetCommitsOutpu
   const rawFilesList: string[] = [];
   const issuesList: string[] = [];
   if (issuePattern) {
-    const issueMatches = commitMessages.match(new RegExp(issuePattern, 'g'));
-    if (issueMatches) {
-      for (const match of issueMatches) {
-        issuesList.push(match);
-      }
-    }
+    issuesList.push(...inferIssues(prData.title, issuePattern));
+    issuesList.push(...inferIssues(prData.body, issuePattern));
+    issuesList.push(...inferIssues(commitMessages, issuePattern));
   }
 
   for (const file of files) {
